@@ -1,0 +1,303 @@
+
+{% extends "baseTemplates/_baseTemplate.html" %}
+{% block content%}
+
+
+    <div class="row"> 
+        <div class="col-md-offset-2 col-md-6">
+            <div class="box box-primary" >
+                
+               <form>
+                 <div id="fromMaster" >
+                    {% include 'BasicSettings/_uomMasterForm.html' %}
+                </div>
+               </form>
+                    
+                
+
+                  
+            </div>
+        </div>
+
+
+        <div class="col-md-offset-2 col-md-6">
+            <div class="box box-primary">
+                
+                <form>
+               
+                <div id="detailsForm">
+                    
+                        {% include 'BasicSettings/_uomDetailsForm.html' %}
+                    
+                </div>
+                </form>
+
+                  <button class="btn btn-primary btn-sm" onclick="AddInList()" ><span class="fa fa-save"><span>&nbsp; Add In List</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-md-offset-1 col-md-8">
+            <div class="box box-primary">
+                <table class="table table-bordered" id="detailsTable">
+                    <thead>
+                       <tr>
+                            <th>
+                                UOM Details
+                            </th>
+                           <th>
+                               Short Form
+                            </th>
+                           <th>
+                               Conversion Value
+                           </th>
+                           <th>
+                               Equal To Master
+                           </th>
+                           <th>Action</th>
+
+                       </tr>
+                    </thead>
+                     <tbody>
+                    </tbody>
+                </table>
+                
+                <button class="btn btn-success btn-sm" onclick="SaveUom()" ><span class="fa fa-save"><span>&nbsp; Save UOM</button>
+               
+            
+            </div>
+
+        </div>
+        
+    </div>
+
+<script type="text/javascript">
+
+    const detailsForm =$('#detailsForm').html(); 
+    $(document).ready(function(){
+      
+    });
+    
+     function SaveUom(){
+         
+       debugger;
+       var jsonData = {};
+       jsonData["UomMasterName"] = $.trim($("#id_UomMasterName").val());
+       jsonData["UomMasterShortName"] = $.trim($("#id_UomMasterShortName").val());
+       jsonData["IsActive"] = $('#id_IsActive').is(':checked')?'True':'False';
+       
+       var jsonObj = [];
+        $('#detailsTable tbody tr').each(function() { 
+            
+            debugger;
+            var id = $.trim($(this).find('.hide').val());
+            
+            var detailObj = {};
+            detailObj["UomMaster"] = 0;
+            detailObj["UomDetailsName"] = $('#'+id+'_UomDetailsName').val();
+            detailObj["UomDetailsShortName"] =  $('#'+id+'_UomDetailsShortName').val();
+            detailObj["ConversionValue"] =$('#'+id+'_ConversionValue').val();
+            detailObj["EqualToMaster"] = $('#'+id+'_EqualToMaster').is(':checked')?'True':'False';
+            jsonObj.push(detailObj);
+        }); 
+
+        jsonData["UomDetails"] = jsonObj;
+
+        var a = "asd";
+        var aa = jsonData;
+        var urlpath = '{% url "basic:SaveUom"   %}';
+        $.ajax({
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(jsonData),
+                dataType: 'json',
+                url: urlpath,
+                type: "POST",
+
+                success:function (response,status, xhr) 
+                {
+                    
+                    debugger;
+                      
+                    var ct = xhr.getResponseHeader("content-type");
+
+                    
+                    if(ct=="application/json")
+                    {
+                    var error =  JSON.parse(response)
+                    var asd = error.HasError
+                    
+                    if(error.HasError)
+                    {
+                        
+                        $('#fromMaster').empty();
+                        $('#fromMaster').append(error.TheData)
+                    }
+                    if(error["IsSuccess"]==true){
+                      window.location.href  = '{% url "basic:UomList"   %}';
+                    }
+                }
+                    
+
+                }
+                
+            });
+            
+
+    }
+
+    function DeleteRow(tr){
+        if( $('#detailsTable tbody tr').length>1)
+        {
+            $('#tr_'+tr).remove();
+        }
+    }
+     function AddInList(){
+        
+       var jsonData = {};
+       var uomName = $.trim($("#id_UomDetailsName").val());
+       var uomShortName = $.trim($('#id_UomDetailsShortName').val());
+       var conversionValue = isNaN(parseFloat($.trim($('#id_ConversionValue').val())))?0:parseFloat($.trim($('#id_ConversionValue').val()));
+       var count = $('#detailsTable tbody tr').length;
+       var equalToMaster = $('#id_EqualToMaster').is(':checked')?'True':'False';
+
+        jsonData["UomDetailsName"] = uomName;
+        jsonData["UomDetailsShortName"] = uomShortName;
+        jsonData["ConversionValue"] = conversionValue;
+        jsonData["EqualToMaster"] = equalToMaster;
+        jsonData["trCount"] = count;
+        var urlpath = '{% url "basic:addUomDetailsFormRow"   %}';
+        AjaxSetup();
+        
+        $.ajax({
+               
+                data:  JSON.stringify(jsonData),
+                dataType: 'json',
+                url: urlpath,
+                type: "POST",
+                success:function (response,status, xhr) 
+                {
+                         
+                    var ct = xhr.getResponseHeader("content-type");                    
+                    if(ct=="application/json")
+                    {
+                    var error =  JSON.parse(response);
+                    
+                    
+                    if(error.HasError)
+                    {
+                        
+                        $('#detailsForm').empty();
+                        $('#detailsForm').append(error.TheData)
+                    }
+                    if(error["IsSuccess"]==true){
+                      
+                    $('#detailsTable tbody ').append(error.TheData);
+                    $('#detailsForm').empty();
+                    $('#detailsForm').html(detailsForm);
+                    }
+                }
+
+                }
+                
+            });
+        
+             
+
+    
+    }
+
+
+
+   
+   
+function AjaxSetup(){
+          $.ajaxSetup({ 
+     beforeSend: function(xhr, settings) {
+         function getCookie(name) {
+             var cookieValue = null;
+             if (document.cookie && document.cookie != '') {
+                 var cookies = document.cookie.split(';');
+                 for (var i = 0; i < cookies.length; i++) {
+                     var cookie = jQuery.trim(cookies[i]);
+                     // Does this cookie string begin with the name we want?
+                     if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                         break;
+                     }
+                 }
+             }
+             return cookieValue;
+         }
+         if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+             // Only send the token to relative URLs i.e. locally.
+             xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+         }
+     } 
+});
+
+
+}
+
+
+    function Validation(){
+        var isValid = true;
+
+
+        var detailsName = $.trim($("#uomDetailsName").val());
+        var detailsShortName = $.trim($("#uomDetailsShortName").val());
+        var conversionValue = parseFloat($("#conversionValue").val());
+        var equalToMaster = $('#equalToMaster').is(':checked')?true:false;
+        
+        if($("#uomDetailsName").val()=='' || $("#uomDetailsName").val()==null){
+
+            ValidationColorChange('uomDetailsName' ,'divForuomDetailsName' , "UOM Details Required ", false );
+            isValid = false;
+        }
+
+         if($("#uomDetailsName").val()=='' || $("#uomDetailsName").val()==null){
+
+            ValidationColorChange('uomDetailsName' ,'divForuomDetailsName' , "UOM Details Required ", false );
+            isValid = false;
+        }
+
+        if($("#uomDetailsShortName").val()=='' || $("#uomDetailsShortName").val()==null){
+
+            ValidationColorChange('uomDetailsShortName' ,'divForuomDetailsShortName' , "UOM Short Name Required ", false );
+            isValid = false;
+        }
+
+        if($("#conversionValue").val()=='' || $("#conversionValue").val()==null ||  parseFloat($("#conversionValue").val())<=0){
+
+            ValidationColorChange('conversionValue' ,'divForconversionValue' , "Valid Conversion Value Required ", false );
+            isValid = false;
+        }
+
+        $('#detailsTable tbody tr').each(function() { 
+
+           
+
+            if( $.trim($(this).find('.name').html()) ==  $.trim($("#uomDetailsName").val())){
+                
+                ValidationColorChange('uomDetailsName' ,'divForuomDetailsName' , "UOM Details Already Exists ", false );
+                return flase;
+            }
+
+            if( $.trim($(this).find('.shortName').html()) == $.trim($("#uomDetailsShortName").val())){
+                
+                ValidationColorChange('uomDetailsShortName' ,'divForuomDetailsShortName' , "UOM Short Name Already Exists ", false );
+                return flase;
+            }
+           
+
+        });
+
+
+        
+        return isValid;
+    }
+</script>
+{% endblock %}
+

@@ -1,0 +1,14 @@
+<div class="row" id="divForItemBrandName">
+    <label>Brand Name:</label>
+    {{masterForm.ItemBrandName}}
+    <label class="text-danger" >{{masterForm.errors.ItemBrandName.as_text }}</label>
+      
+</div>
+
+
+<div class="row" id="divForIsActive">
+    <label>Is Active:</label>
+    {{masterForm.IsActive}}
+    {% comment %} <label class="text-danger" >{{masterForm.errors.IsActive.as_text }}</label> {% endcomment %}
+      
+</div>

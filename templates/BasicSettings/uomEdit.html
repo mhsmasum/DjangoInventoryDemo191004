@@ -1,0 +1,321 @@
+{% extends "baseTemplates/_baseTemplate.html" %}
+{% block content%}
+
+    <div class="row"> 
+        <div class="col-md-offset-2 col-md-6">
+            <div class="box box-primary" >
+                
+               <form>{% csrf_token %}
+                 <div id="fromMaster" >
+                   
+                    {% include 'BasicSettings/_uomMasterForm.html' with  masterForm=masterForm   %}
+                   
+                </div>
+                <input type="text" id="uomMasterId" value="{{masterId}}"/>
+               </form>
+                    
+               
+
+                  
+            </div>
+        </div>
+
+
+        <div class="col-md-offset-2 col-md-6">
+            <div class="box box-primary">
+                
+                <form>
+               
+                <div id="detailsForm">
+                    
+                        {% include 'BasicSettings/_uomDetailsForm.html' %}
+                    
+                </div>
+                </form>
+
+                 <button class="btn btn-primary btn-sm" onclick="AddInList()" ><span class="fa fa-save"><span>&nbsp; Add In List</button>
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="row">
+        <div class="col-md-offset-1 col-md-8">
+            <div class="box box-primary">
+                <table class="table table-bordered" id="detailsTable">
+                    <thead>
+                       <tr>
+                            <th>
+                                UOM Details
+                            </th>
+                           <th>
+                               Short Form
+                            </th>
+                           <th>
+                               Conversion Value
+                           </th>
+                           <th>
+                               Equal To Master
+                           </th>
+                           <th>Action</th>
+
+                       </tr>
+                    </thead>
+                     <tbody>
+                    </tbody>
+                </table>
+                
+                <button class="btn btn-success btn-sm" onclick="SaveUom()" ><span class="fa fa-save"><span>&nbsp; Update </button>
+               
+            
+            </div>
+
+        </div>
+        
+    </div>
+
+
+
+    
+    
+    <script type="text/javascript">
+    const detailsForm =$('#detailsForm').html(); 
+    $(document).ready(function(){
+       var uomMasterId = $('#uomMasterId').val();
+       var detailsObjectList =  LoadUomDetails(uomMasterId);
+
+       if(detailsObjectList.length>0){
+           
+          IniDetailsList(detailsObjectList);
+       }
+
+    });
+
+     function IniDetailsList(detailsObjectList){
+        
+
+         for(var i=0 ; i<detailsObjectList.length ; i++){
+               var aObject = detailsObjectList[i];
+            
+               LoadTable(aObject , i)
+           }
+
+        
+        
+    }
+    function AddInList(){
+       var uomName = $.trim($("#id_UomDetailsName").val());
+       var uomShortName = $.trim($('#id_UomDetailsShortName').val());
+       var conversionValue = isNaN(parseFloat($.trim($('#id_ConversionValue').val())))?0:parseFloat($.trim($('#id_ConversionValue').val()));
+       var count = $('#detailsTable tbody tr').length;
+       var equalToMaster = $('#id_EqualToMaster').is(':checked')?'True':'False';
+       var count = $('#detailsTable tbody tr').length;
+       var uomDetails = {
+           UomDetailsName:uomName,
+           UomDetailsShortName:uomShortName,
+           ConversionValue:conversionValue,
+           EqualToMaster: equalToMaster
+       }
+       LoadTable(uomDetails , count)
+
+    }
+    
+
+
+    function LoadTable(details , tr){
+        
+       var jsonData = {};
+
+
+        jsonData["UomDetailsName"] = details.UomDetailsName;
+        jsonData["UomDetailsShortName"] = details.UomDetailsShortName;
+        jsonData["ConversionValue"] = details.ConversionValue;
+        jsonData["EqualToMaster"] = details.EqualToMaster;
+        jsonData["trCount"] = tr;
+        var urlpath = '{% url "addUomDetailsFormRow"   %}';
+        AjaxSetup();
+        
+        $.ajax({
+               
+                data:  JSON.stringify(jsonData),
+                dataType: 'json',
+                url: urlpath,
+                type: "POST",
+                success:function (response,status, xhr) 
+                {
+                         
+                    var ct = xhr.getResponseHeader("content-type");                    
+                    if(ct=="application/json")
+                    {
+                    var error =  JSON.parse(response);
+                    
+                    
+                    if(error.HasError)
+                    {
+                        
+                        $('#detailsForm').empty();
+                        $('#detailsForm').append(error.TheData)
+                    }
+                    if(error["IsSuccess"]==true){
+                      
+                    $('#detailsTable tbody ').append(error.TheData);
+                    $('#detailsForm').empty();
+                    $('#detailsForm').html(detailsForm);
+                    }
+                }
+
+                }
+                
+            });
+        
+             
+
+    
+    }
+
+
+    function DeleteRow(trCount){
+        var rowCount = $('#detailsTable tbody tr').length;
+        if(rowCount>1){
+            
+            $("#tr_"+trCount).remove();
+        }
+    }
+    function SaveUom(){
+          debugger;
+        var jsonData = {};
+
+         
+      
+
+       jsonData["UomMasterName"] = $.trim($("#id_UomMasterName").val());
+       jsonData["UomMaster"] = $('#uomMasterId').val();;
+       jsonData["UomMasterShortName"] = $.trim($("#id_UomMasterShortName").val());
+       jsonData["IsActive"] = $('#id_IsActive').is(':checked')?'True':'False';
+       jsonData["id"] =$.trim($("#uomMasterId").val());
+       jsonObj = [];
+        $('#detailsTable tbody tr').each(function() { 
+            
+            
+           
+
+
+            var id = $.trim($(this).find('.hide').val());
+            
+            var detailObj = {};
+            detailObj["UomMaster"] = 0;
+            detailObj["UomDetailsName"] = $('#'+id+'_UomDetailsName').val();
+            detailObj["UomDetailsShortName"] =  $('#'+id+'_UomDetailsShortName').val();
+            detailObj["ConversionValue"] =$('#'+id+'_ConversionValue').val();
+            detailObj["EqualToMaster"] = $('#'+id+'_EqualToMaster').is(':checked')?'True':'False';
+            jsonObj.push(detailObj);
+        }); 
+         jsonData["UomDetails"] = jsonObj;
+
+       
+      
+        
+        
+        var urlpath = '{% url "UpdateUom"   %}';
+        $.ajax({
+               
+                data:  JSON.stringify(jsonData),
+                dataType: 'json',
+                url: urlpath,
+                type: "POST",
+
+                success:function (response,status, xhr) 
+                {
+                      
+                    var ct = xhr.getResponseHeader("content-type");
+
+                    
+                    if(ct=="application/json")
+                    {
+                    var error =  JSON.parse(response)
+                    var asd = error.HasError
+                    
+                    if(error.HasError)
+                    {
+                        
+                        $('#fromMaster').empty();
+                        $('#fromMaster').append(error.TheData)
+                    }
+                    if(error["IsSuccess"]==true){
+                      window.location.href  = '{% url "UomList"   %}';
+                    }
+                }
+
+                }
+                
+            });
+            
+
+    }
+    
+
+    function LoadUomDetails(uomMasterId){
+
+        var DetailsList = []
+        
+        var id = uomMasterId;
+       
+         $.ajax({
+            type: 'GET',
+            dataType: 'json',
+            url: '{% url "GetUomDetailsByMaster"   %}',
+            
+            async:false,
+
+            data:{uomMasterId: uomMasterId  },
+            
+            success: function(response){
+                debugger;
+                count = response.length;
+                if(count>0){
+                    for( var i=0 ; i<count;i++){
+                        var detailObject = new Object();
+                        detailObject.UomDetailsName        = response[i].fields.UomDetailsName;
+                        detailObject.UomDetailsShortName   = response[i].fields.UomDetailsShortName;
+                        detailObject.EqualToMaster         = response[i].fields.EqualToMaster;
+                        detailObject.ConversionValue       = response[i].fields.ConversionValue;
+                        DetailsList.push(detailObject);                       
+                    }
+                }
+              }});  
+            return  DetailsList;
+    }
+    
+
+    
+    function AjaxSetup(){
+          $.ajaxSetup({ 
+     beforeSend: function(xhr, settings) {
+         function getCookie(name) {
+             var cookieValue = null;
+             if (document.cookie && document.cookie != '') {
+                 var cookies = document.cookie.split(';');
+                 for (var i = 0; i < cookies.length; i++) {
+                     var cookie = jQuery.trim(cookies[i]);
+                     // Does this cookie string begin with the name we want?
+                     if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                         break;
+                     }
+                 }
+             }
+             return cookieValue;
+         }
+         if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+             // Only send the token to relative URLs i.e. locally.
+             xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+         }
+     } 
+    });
+}
+
+    </script>
+
+{% endblock %}
+
+

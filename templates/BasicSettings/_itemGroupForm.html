@@ -1,0 +1,22 @@
+<div class="row" id="divForGroupName">
+    <label>Group Name:</label>
+    {{masterForm.ItemGroupName}}
+    <label class="text-danger" >{{masterForm.errors.ItemGroupName.as_text }}</label>
+      
+</div>
+<div class="row" id="divForGroupName">
+    <label>Short Name:</label>
+    {{masterForm.GroupShortName}}
+    <label class="text-danger" >{{masterForm.errors.GroupShortName.as_text }}</label>
+      
+</div>
+
+
+
+
+<div class="row" id="divForIsActive">
+    <label>Is Active:</label>
+    {{masterForm.IsActive}}
+    {% comment %} <label class="text-danger" >{{masterForm.errors.IsActive.as_text }}</label> {% endcomment %}
+      
+</div>

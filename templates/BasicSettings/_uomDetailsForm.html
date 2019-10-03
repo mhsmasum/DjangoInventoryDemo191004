@@ -1,0 +1,25 @@
+<div class="row" id="divForUomDetailsName">
+    <label>UOM Details Name:</label>
+    {{detailForm.UomDetailsName}}
+    <label class="text-danger" >{{detailForm.errors.UomDetailsName.as_text }}</label>
+      
+</div>
+<div class="row" id="divUomDetailsShortName">
+    <label>Short Name:</label>
+    {{detailForm.UomDetailsShortName}}
+    <label class="text-danger" >{{detailForm.errors.UomDetailsShortName.as_text }}</label>
+   
+    
+</div>
+<div class="row" id="divForConversionValue">
+    <label>Conversion Value:</label>
+    {{detailForm.ConversionValue}}
+    <label class="text-danger" >{{detailForm.errors.ConversionValue.as_text }}</label>
+</div>
+<div class="row" id="eqm">
+    <label>Equal To Master:</label>
+    {{detailForm.EqualToMaster}}
+    
+</div>
+
+{{detailForm.non_field_errors}}

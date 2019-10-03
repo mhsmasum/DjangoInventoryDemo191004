@@ -1,0 +1,51 @@
+
+{% extends "baseTemplates/_baseTemplate.html" %}
+{% block content%}
+
+<div class="box box-primary">
+    <div class="box-header with-border">
+    <div class="col-md-4">
+        <h3 class="box-title">Item Group</h3>    
+    </div>
+    <div class="col-md-4">
+       {% comment %} <a href="{% url 'uom'  %}" > Add New </a>     {% endcomment %}
+    </div>
+    </div>
+    <div class="box-body">
+        <table class="table table-bordered table-hover dataTable">
+            <thead>
+                <tr>
+                    <th>Group name</th>
+                    <th>Short name</th>
+                    
+                    <th>Create Date</th>
+                    <th>Create By</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for obj in object_list %}
+                <tr>
+                    <td>{{obj.ItemGroupName}}</td>
+                    <td>{{obj.GroupShortName}}</td>
+                    
+                    
+                    <td>{{obj.CreateBy}}</td>
+                    <td>{{obj.CreateDate}}</td>
+                    <td>
+                        {% comment %} <a href="{% url 'EditUom' obj.pk %}" class="btn btn-sm btn-info"><span class="fa fa-info"></span></a> {% endcomment %}
+                        <a href="{% url 'basic:EditGroup' obj.pk %}" class="btn btn-sm btn-warning"><span class="fa fa-edit"></span></a>
+                        <a class="btn btn-sm btn-danger"><span class="fa fa-trash"></span></a>
+                        
+                    </td>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+{% endblock %}

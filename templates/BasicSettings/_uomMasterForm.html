@@ -1,0 +1,18 @@
+<div class="row" id="divForUomMasterName">
+    <label>UOM Master Name:</label>
+    {{masterForm.UomMasterName}}
+    <label class="text-danger" >{{masterForm.errors.UomMasterName.as_text }}</label>
+      
+</div>
+<div class="row" id="divForUomMasterShortName">
+    <label>Master Short Name:</label>
+    {{masterForm.UomMasterShortName}}
+    <label class="text-danger" >{{masterForm.errors.UomMasterShortName.as_text }}</label>
+      
+</div>
+<div class="row" id="divForIsActive">
+    <label>Is Active:</label>
+    {{masterForm.IsActive}}
+    {% comment %} <label class="text-danger" >{{masterForm.errors.IsActive.as_text }}</label> {% endcomment %}
+      
+</div>

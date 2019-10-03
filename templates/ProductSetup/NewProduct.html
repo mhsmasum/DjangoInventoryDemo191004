@@ -1,0 +1,123 @@
+
+{% extends "baseTemplates/_baseTemplate.html" %}
+{% block content%}
+
+
+<div class="row"> 
+        <div class="col-md-offset-2 col-md-6">
+            <div class="box box-primary" >
+                
+               <form>{% csrf_token %}
+                 <div id="fromMaster" >
+                    {% include 'ProductSetup/_productForm.html' %}
+                </div>
+                
+               </form>
+                <button class="btn btn-success btn-sm" onclick="SaveProduct()" ><span class="fa fa-save"><span>&nbsp; Save </button>
+                    
+                
+                
+                  
+            </div>
+        </div>
+</div>
+{% load static %}
+<script src="{% static 'app_scripts/product.js'%}"></script>
+<script type="text/javascript">
+
+const masterForm =$('#fromMaster').html(); 
+function SaveProduct(){
+
+    debugger;
+    var color = Array();
+    var size = Array();
+    $("input:checkbox[name=ProductColor]:checked").each(function(){
+        color.push(parseInt($(this).val()));
+    });
+     $("input:checkbox[name=ProductSize]:checked").each(function(){
+        size.push(parseInt($(this).val()));
+    });
+    
+
+    var jsonData = {};
+
+    jsonData["ProductCategory"]  = $.trim($('#id_ProductCategory').val());
+    jsonData["ProductName"]  = $.trim($('#id_ProductName').val());
+    jsonData["ProductDescripTion"]  = $.trim($('#id_ProductDescripTion').val());
+    jsonData["ProductCountry"]  = $.trim($('#id_ProductCountry').val());
+    jsonData["ProductBrand"]  = $.trim($('#id_ProductBrand').val());
+    jsonData["ProductUOM"]  = $.trim($('#id_ProductUOM').val());
+    jsonData["ProductColor"]  = color;
+    jsonData["ProductSize"]  = size;
+    jsonData["IsActive"] = $('#id_IsActive').is(':checked')?'True':'False';
+     AjaxSetup();
+     var urlpath = '{% url "SaveProduct"   %}';
+        $.ajax({
+               
+                data:  JSON.stringify(jsonData),
+                dataType: 'json',
+                url: urlpath,
+                type: "POST",
+
+                success:function (response,status, xhr) 
+                {
+                    debugger;
+                      
+                    var ct = xhr.getResponseHeader("content-type");
+
+                    
+                    if(ct=="application/json")
+                    {
+                    var error =  JSON.parse(response)
+                    var asd = error.HasError
+                    
+                    if(error.HasError)
+                    {
+                        swal("Failed", "Operation Failed", "error");
+                        $('#fromMaster').empty();
+                        $('#fromMaster').append(error.TheData)
+                    }
+                    if(error["IsSuccess"]==true){
+                        swal("Success", "Product Added", "success");
+                         $('#fromMaster').empty();
+                         $('#fromMaster').html(masterForm);
+                          
+                      //window.location.href  = '{% url "brands"   %}';
+                    }
+                }
+
+                }
+                
+            });
+
+    
+
+}
+      function AjaxSetup(){
+          $.ajaxSetup({ 
+     beforeSend: function(xhr, settings) {
+         function getCookie(name) {
+             var cookieValue = null;
+             if (document.cookie && document.cookie != '') {
+                 var cookies = document.cookie.split(';');
+                 for (var i = 0; i < cookies.length; i++) {
+                     var cookie = jQuery.trim(cookies[i]);
+                     // Does this cookie string begin with the name we want?
+                     if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                         break;
+                     }
+                 }
+             }
+             return cookieValue;
+         }
+         if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+             // Only send the token to relative URLs i.e. locally.
+             xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+         }
+     } 
+    });
+}
+</script>
+
+{% endblock %}

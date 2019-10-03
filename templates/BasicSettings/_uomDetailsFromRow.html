@@ -1,0 +1,22 @@
+        {% if error is None%}
+            <tr id="tr_{{trCount}}" >
+                <td><div>{{detailForm.UomDetailsName}}</div></td>
+                <td>{{detailForm.UomDetailsShortName}}</td>
+                <td>{{detailForm.ConversionValue}}</td>
+                <td>{{detailForm.EqualToMaster}}</td>
+                
+                
+                <td>
+                    <input type="number" class="hide" value="{{trCount}}"/>
+                    <button class="btn btn-danger btn-xs" onclick="DeleteRow({{trCount}})"> <b><span class="fa fa-remove"></span></b> </button>
+                </td> 
+
+                
+
+            </tr>
+        {% else%}:
+            <div>asd</div>
+        {%endif%}
+
+
+

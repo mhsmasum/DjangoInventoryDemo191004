@@ -1,0 +1,25 @@
+ <div class="row" id="divForItemGroup">
+    <label>Group:</label>
+    {{masterForm.ItemGroup}}
+    <label class="text-danger" >{{masterForm.errors.ItemGroup.as_text }}</label>
+      
+</div>
+<div class="row" id="divForItemCategory">
+    <label>Category Name:</label>
+    {{masterForm.ItemCategory}}
+    <label class="text-danger" >{{masterForm.errors.ItemCategory.as_text }}</label>
+      
+</div>
+<div class="row" id="divForCategoryShortName">
+    <label> Short Name:</label>
+    {{masterForm.CategoryShortName}}
+    <label class="text-danger" >{{masterForm.errors.CategoryShortName.as_text }}</label>
+      
+</div>
+<div class="row" id="divForIsActive">
+    <label>Is Active:</label>
+    {{masterForm.IsActive}}
+    
+      
+</div> 
+
